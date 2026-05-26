@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en" id="htmlRoot">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Portfolio</title>
+<style>
+/* ============================================================
+   DAY MODE (default)
+   ============================================================ */
+:root {
+  --sky-top: #87CEEB;
+  --sky-mid: #b8e4f7;
+  --sky-bottom: #d4f0ff;
+  --glass-bg: rgba(255,255,255,0.45);
+  --glass-border: rgba(255,255,255,0.75);
+  --titlebar-from: #3a8fd4;
+  --titlebar-to:   #1a5fa8;
+  --tab-active:   rgba(255,255,255,0.80);
+  --tab-inactive: rgba(200,230,255,0.45);
+  --text-main:  #1a3a5c;
+  --text-muted: #4a7aac;
+  --accent-green: #4caf50;
+  --accent-blue:  #1e90ff;
+  --btn-from: #5bbfee;
+  --btn-to:   #1a7fc9;
+  --btn-green-from: #66cc44;
+  --btn-green-to:   #3a9922;
+  --statusbar-bg: rgba(180,220,255,0.6);
+  --addr-bg: rgba(200,230,255,0.50);
+  --cloud-opacity: 1;
+  --stars-opacity: 0;
+  --ground-opacity: 0.6;
+  --card-bg: rgba(255,255,255,0.40);
+  --card-border: rgba(200,230,255,0.80);
+  --info-bg: rgba(255,255,255,0.40);
+}
+
+/* ============================================================
+   NIGHT MODE  — scoped to html.night
+   ============================================================ */
+html.night {
+  --sky-top: #060918;
+  --sky-mid: #0d1230;
+  --sky-bottom: #141a45;
+  --glass-bg: rgba(8,14,50,0.72);
+  --glass-border: rgba(70,110,220,0.50);
+  --titlebar-from: #12205a;
+  --titlebar-to:   #07102a;
+  --tab-active:   rgba(20,38,110,0.85);
+  --tab-inactive: rgba(10,18,60,0.65);
+  --text-main:  #c8e0ff;
+  --text-muted: #7aaad4;
+  --accent-green: #55ee77;
+  --accent-blue:  #44aaff;
+  --btn-from: #152e70;
+  --btn-to:   #071540;
+  --btn-green-from: #1e5c2a;
+  --btn-green-to:   #0e3016;
+  --statusbar-bg: rgba(8,14,55,0.80);
+  --addr-bg: rgba(8,14,55,0.60);
+  --cloud-opacity: 0;
+  --stars-opacity: 1;
+  --ground-opacity: 0.18;
+  --card-bg: rgba(10,20,70,0.55);
+  --card-border: rgba(60,100,200,0.45);
+  --info-bg: rgba(10,20,70,0.45);
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100vh;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  position: relative; overflow-x: hidden;
+}
+
+/* Sky layer (behind everything) */
+.sky-bg {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background: linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 50%, var(--sky-bottom) 100%);
+  transition: background 0.7s ease;
+}
+
+/* Stars */
+.stars {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  opacity: var(--stars-opacity);
+  transition: opacity 0.8s ease;
+}
+.star {
+  position: absolute; background: white; border-radius: 50%;
+  animation: twinkle 2s infinite alternate;
+}
+@keyframes twinkle { from{opacity:0.2} to{opacity:1} }
+
+/* Clouds */
+.cloud-layer {
+  position: fixed; top: 0; left: 0; width: 100%; height: 55%;
+  pointer-events: none; z-index: 2; overflow: hidden;
+  opacity: var(--cloud-opacity); transition: opacity 0.7s;
+}
+.cloud {
+  position: absolute;
+  background: rgba(255,255,255,0.88);
+  border-radius: 50px; filter: blur(2px);
+  animation: drift linear infinite;
+}
+.cloud::before,.cloud::after {
+  content:''; position:absolute;
+  background: rgba(255,255,255,0.88); border-radius:50%;
+}
+.c1{width:180px;height:38px;top:7%;animation-duration:62s;animation-delay:-8s}
+.c1::before{width:78px;height:58px;top:-28px;left:22px}
+.c1::after{width:58px;height:44px;top:-18px;left:72px}
+.c2{width:140px;height:30px;top:19%;animation-duration:78s;animation-delay:-38s}
+.c2::before{width:58px;height:44px;top:-20px;left:14px}
+.c2::after{width:48px;height:36px;top:-14px;left:54px}
+.c3{width:210px;height:44px;top:4%;animation-duration:68s;animation-delay:-52s}
+.c3::before{width:88px;height:64px;top:-30px;left:28px}
+.c3::after{width:68px;height:50px;top:-20px;left:95px}
+@keyframes drift{from{left:-260px}to{left:110%}}
+
+/* Ground */
+.ground {
+  position: fixed; bottom: 0; left: 0; right: 0; height: 75px;
+  pointer-events: none; z-index: 2;
+  background: linear-gradient(180deg, #5cb85c 0%, #3a7a20 100%);
+  opacity: var(--ground-opacity); transition: opacity 0.7s;
+}
+
+/* ============================================================
+   WINDOW
+   ============================================================ */
+.window {
+  position: relative; z-index: 10;
+  width: 100%; max-width: 730px;
+  border-radius: 12px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 40px rgba(0,40,160,0.3), inset 0 1px 0 rgba(255,255,255,0.6);
+  overflow: hidden;
+  transition: background 0.7s, border-color 0.7s, box-shadow 0.7s;
+}
+
+/* Title Bar */
+.titlebar {
+  background: linear-gradient(180deg, var(--titlebar-from), var(--titlebar-to));
+  padding: 6px 10px; display: flex; align-items: center; gap: 8px;
+  border-radius: 11px 11px 0 0;
+  transition: background 0.7s;
+}
+.wbtns { display:flex; gap:5px; }
+.wbtn {
+  width:16px; height:16px; border-radius:3px;
+  border:1px solid rgba(0,0,0,0.3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:9px; font-weight:700; color:rgba(0,0,0,0.55);
+  cursor:pointer; user-select:none;
+}
+.wbtn-min{background:linear-gradient(180deg,#f0d060,#c8a020)}
+.wbtn-max{background:linear-gradient(180deg,#80cc80,#408040)}
+.wbtn-cls{background:linear-gradient(180deg,#ff8080,#cc3030)}
+.titlebar-title {
+  flex:1; text-align:center; color:white;
+  font-size:12px; font-weight:600;
+  text-shadow:0 1px 2px rgba(0,0,0,0.45);
+}
+
+/* Address Bar */
+.addressbar {
+  background: var(--addr-bg);
+  padding: 7px 10px; display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.4);
+  transition: background 0.7s;
+}
+.nav-arrows { display:flex; gap:4px; }
+.nav-btn {
+  width:28px; height:24px;
+  background: linear-gradient(180deg,#e8f4ff,#aad0ee 50%,#80b8e0);
+  border:1px solid rgba(100,160,220,0.7); border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; color:#1a4a7a; cursor:pointer;
+  box-shadow:0 1px 3px rgba(0,80,180,0.2),inset 0 1px 0 rgba(255,255,255,0.8);
+  transition:filter 0.15s;
+}
+.nav-btn:hover { filter:brightness(1.1); }
+.address-box {
+  flex:1; background:rgba(255,255,255,0.75);
+  border:1px solid rgba(100,160,220,0.6); border-radius:4px;
+  padding:4px 10px; font-size:12px; color:var(--text-main);
+  display:flex; align-items:center; justify-content:space-between;
+  transition: color 0.4s;
+}
+.address-box span { font-size:11px; opacity:0.7; }
+.visit-btn {
+  background: linear-gradient(180deg,var(--btn-from),var(--btn-to));
+  border:1px solid rgba(80,140,220,0.7); border-radius:4px;
+  padding:4px 12px; color:white; font-size:11px; font-weight:700;
+  cursor:pointer; text-decoration:none; white-space:nowrap;
+  display:flex; align-items:center; gap:5px;
+  box-shadow:0 1px 3px rgba(0,80,180,0.3),inset 0 1px 0 rgba(255,255,255,0.25);
+  transition:filter 0.15s, background 0.6s;
+}
+.visit-btn:hover { filter:brightness(1.12); }
+
+/* Day/Night toggle */
+.dn-wrap { display:flex; align-items:center; gap:5px; }
+.dn-icon { font-size:14px; line-height:1; }
+.dn-toggle {
+  width:38px; height:20px; border-radius:10px;
+  background: linear-gradient(90deg,#87ceeb,#5aa8d4);
+  border:1px solid rgba(100,160,220,0.6); cursor:pointer;
+  position:relative; transition:background 0.5s;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,0.18);
+  flex-shrink:0;
+}
+html.night .dn-toggle {
+  background: linear-gradient(90deg,#12205a,#07102a);
+}
+.dn-knob {
+  position:absolute; top:2px; left:2px;
+  width:16px; height:16px; border-radius:50%;
+  background: radial-gradient(circle at 35% 35%,#fff8cc,#f0d040);
+  box-shadow:0 1px 4px rgba(0,0,0,0.35);
+  transition:left 0.35s cubic-bezier(.4,0,.2,1), background 0.5s;
+}
+html.night .dn-knob {
+  left:20px;
+  background: radial-gradient(circle at 35% 35%,#d8e8ff,#a0b8e0);
+}
+
+/* Bookmarks bar */
+.bkbar {
+  background: rgba(210,235,255,0.40);
+  padding:5px 12px; display:flex; align-items:center; gap:14px;
+  font-size:11px; color:var(--text-main);
+  border-bottom:1px solid rgba(255,255,255,0.45);
+  transition: color 0.4s;
+}
+html.night .bkbar { background: rgba(10,18,60,0.45); }
+
+/* Nav tabs */
+.nav-tabs { display:flex; background:rgba(180,220,255,0.30); border-bottom:2px solid rgba(150,200,255,0.40); }
+html.night .nav-tabs { background: rgba(8,14,55,0.45); border-bottom-color: rgba(50,80,200,0.4); }
+.nav-tab {
+  padding:7px 14px; font-size:12px; font-weight:600;
+  color:var(--text-muted); cursor:pointer;
+  background:var(--tab-inactive);
+  border-right:1px solid rgba(255,255,255,0.35);
+  display:flex; align-items:center; gap:5px;
+  transition: background 0.25s, color 0.25s;
+  user-select:none;
+}
+.nav-tab:hover { filter:brightness(1.08); color:var(--text-main); }
+.nav-tab.active { background:var(--tab-active); color:var(--text-main); border-bottom:2px solid rgba(100,180,255,0.8); }
+
+/* Content area */
+.content-area { display:flex; min-height:330px; background:rgba(230,245,255,0.15); }
+html.night .content-area { background:rgba(5,10,40,0.20); }
+
+/* Sidebar */
+.sidebar {
+  width:172px; flex-shrink:0;
+  padding:14px 10px;
+  background:rgba(200,230,255,0.20);
+  border-right:1px solid rgba(255,255,255,0.40);
+  display:flex; flex-direction:column; align-items:center; gap:9px;
+  transition: background 0.6s;
+}
+html.night .sidebar { background:rgba(5,10,45,0.30); border-right-color:rgba(50,80,200,0.3); }
+.avatar-wrap {
+  width:108px; height:108px; border-radius:14px; overflow:hidden;
+  border:3px solid rgba(255,255,255,0.80);
+  box-shadow:0 4px 16px rgba(0,80,200,0.18);
+  background:linear-gradient(135deg,#c8e8ff,#e8f8ff);
+  display:flex; align-items:center; justify-content:center; font-size:58px;
+}
+.profile-name { font-size:15px; font-weight:700; color:var(--text-main); text-align:center; transition:color 0.4s; }
+.profile-sub  { font-size:11px; color:var(--accent-blue); text-align:center; margin-top:-5px; transition:color 0.4s; }
+
+.status-list,.hobby-sidebar-list {
+  width:100%; display:flex; flex-direction:column; gap:4px;
+  font-size:12px; color:var(--text-main); transition:color 0.4s;
+}
+.status-item { display:flex; align-items:center; gap:6px; }
+.status-dot {
+  width:8px;height:8px;border-radius:50%;
+  background:var(--accent-green);
+  box-shadow:0 0 6px var(--accent-green);
+  flex-shrink:0;
+}
+.status-val { color:var(--accent-green); font-weight:700; }
+.hobby-sb {
+  display:flex; align-items:center; gap:5px;
+  padding:3px 6px; border-radius:4px;
+  background:var(--card-bg); border:1px solid var(--card-border);
+  cursor:pointer; transition:filter 0.2s;
+}
+.hobby-sb:hover { filter:brightness(1.1); }
+
+.social-row { display:flex; gap:8px; margin-top:2px; }
+.soc-btn {
+  width:34px;height:34px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:15px;
+  background:linear-gradient(180deg,rgba(255,255,255,0.7),rgba(180,220,255,0.8));
+  border:2px solid rgba(255,255,255,0.9);
+  box-shadow:0 3px 10px rgba(0,80,200,0.18);
+  cursor:pointer; text-decoration:none;
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.soc-btn:hover { transform:translateY(-2px); box-shadow:0 5px 14px rgba(0,80,200,0.28); }
+
+/* Main panel */
+.main-panel { flex:1; padding:14px; overflow:hidden; }
+.panel-page { display:none; }
+.panel-page.active { display:block; }
+.page-title {
+  font-size:22px; font-weight:300; color:var(--text-main);
+  margin-bottom:11px; letter-spacing:-0.4px; transition:color 0.4s;
+}
+.hero-box {
+  width:100%; height:128px; border-radius:10px;
+  border:2px solid rgba(255,255,255,0.65);
+  box-shadow:0 3px 12px rgba(0,80,200,0.12);
+  background:linear-gradient(135deg,#a8d8f0,#c8f0d8);
+  display:flex; align-items:center; justify-content:center;
+  font-size:40px; margin-bottom:11px; overflow:hidden; position:relative;
+}
+.hero-box::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(100,200,255,0.25),rgba(100,255,180,0.25));
+}
+.bio-row {
+  display:flex; gap:7px; align-items:flex-start;
+  font-size:12px; line-height:1.6; color:var(--text-main);
+  margin-bottom:11px; transition:color 0.4s;
+}
+.bio-dot {
+  width:13px;height:13px;border-radius:50%;
+  background:radial-gradient(circle,#66cc44,#228800);
+  flex-shrink:0; margin-top:3px;
+}
+.bio-row a { color:var(--accent-blue); text-decoration:underline; }
+.info-cards { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.info-card {
+  background:var(--info-bg); border:1px solid var(--card-border);
+  border-radius:6px; padding:8px 10px;
+  font-size:11px; line-height:1.55; color:var(--text-main);
+  transition:background 0.6s, border-color 0.6s, color 0.4s;
+}
+.card-label {
+  display:inline-block;
+  background:linear-gradient(135deg,#3a8fd4,#1a5fa8);
+  color:white; font-size:10px; font-weight:700;
+  padding:1px 6px; border-radius:3px; margin-bottom:5px; letter-spacing:.5px;
+}
+
+/* Hobbies page */
+.hobbies-grid { display:flex; flex-direction:column; gap:9px; margin-top:6px; }
+.hobby-card {
+  background:var(--card-bg); border:1px solid var(--card-border);
+  border-radius:8px; padding:9px 12px;
+  display:flex; gap:10px; align-items:flex-start;
+  transition:background 0.6s, border-color 0.6s;
+}
+.hobby-icon { font-size:26px; flex-shrink:0; }
+.hobby-info h3 { font-size:13px; color:var(--text-main); font-weight:700; margin-bottom:3px; transition:color 0.4s; }
+.hobby-info p  { font-size:11px; color:var(--text-muted); line-height:1.5; transition:color 0.4s; }
+
+/* Gallery page */
+.gallery-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:9px; margin-top:6px; }
+.gallery-item {
+  border-radius:8px; overflow:hidden;
+  border:2px solid rgba(255,255,255,0.65);
+  box-shadow:0 3px 10px rgba(0,80,200,0.10);
+  height:100px; display:flex; align-items:center; justify-content:center;
+  font-size:34px; cursor:pointer; position:relative;
+  transition:transform 0.2s,box-shadow 0.2s;
+}
+.gallery-item:hover { transform:scale(1.04); box-shadow:0 6px 20px rgba(0,80,200,0.22); }
+.gallery-cap {
+  position:absolute; bottom:0; left:0; right:0;
+  background:rgba(0,0,0,0.35); color:white;
+  font-size:10px; font-weight:600; text-align:center;
+  padding:4px; backdrop-filter:blur(4px);
+}
+
+/* Status bar */
+.statusbar {
+  background:var(--statusbar-bg);
+  padding:8px 12px; display:flex; align-items:center; gap:9px;
+  border-top:1px solid rgba(255,255,255,0.40);
+  transition: background 0.6s;
+}
+.s-globe { font-size:18px; }
+.lang-btn {
+  flex:1; padding:5px 0; border-radius:5px;
+  border:1px solid rgba(100,180,255,0.45);
+  font-size:12px; font-weight:700; color:white; cursor:pointer;
+  box-shadow:0 2px 6px rgba(0,0,0,0.15),inset 0 1px 0 rgba(255,255,255,0.22);
+  transition:filter 0.15s, background 0.6s, opacity 0.3s;
+  opacity:0.65;
+}
+.lang-btn.active-lang { opacity:1; }
+.lang-btn:hover { filter:brightness(1.1); }
+.lang-en { background:linear-gradient(180deg,var(--btn-from),var(--btn-to)); }
+.lang-ru { background:linear-gradient(180deg,var(--btn-green-from),var(--btn-green-to)); }
+.s-icons { display:flex; gap:7px; font-size:14px; }
+
+.footer {
+  text-align:center; font-size:11px; color:var(--text-muted);
+  padding:5px; background:rgba(180,220,255,0.25);
+  transition: color 0.4s, background 0.6s;
+}
+html.night .footer { background:rgba(5,10,40,0.35); }
+
+/* Responsive */
+@media(max-width:560px){
+  .content-area { flex-direction:column; }
+  .sidebar { width:100%; flex-direction:row; flex-wrap:wrap; justify-content:center; border-right:none; border-bottom:1px solid rgba(255,255,255,0.4); }
+  .avatar-wrap { width:68px; height:68px; }
+  .info-cards { grid-template-columns:1fr; }
+  .bkbar { display:none; }
+  .nav-tab { padding:6px 9px; font-size:11px; }
+}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:rgba(200,230,255,0.3)}
+::-webkit-scrollbar-thumb{background:rgba(100,180,255,0.5);border-radius:3px}
+</style>
+</head>
+<body>
+
+<div class="sky-bg"></div>
+<div class="stars" id="stars"></div>
+<div class="cloud-layer">
+  <div class="cloud c1"></div>
+  <div class="cloud c2"></div>
+  <div class="cloud c3"></div>
+</div>
+<div class="ground"></div>
+
+<div class="window">
+
+  <!-- ── TITLE BAR ── -->
+  <div class="titlebar">
+    <div class="wbtns">
+      <div class="wbtn wbtn-min">_</div>
+      <div class="wbtn wbtn-max">□</div>
+      <div class="wbtn wbtn-cls">✕</div>
+    </div>
+    <div class="titlebar-title" id="titlebarTitle"></div>
+  </div>
+
+  <!-- ── ADDRESS BAR ── -->
+  <div class="addressbar">
+    <div class="nav-arrows">
+      <div class="nav-btn">◀</div>
+      <div class="nav-btn">▶</div>
+    </div>
+    <div class="address-box">
+      <span id="addressText"></span><span>▾</span>
+    </div>
+    <a id="ytBtn" class="visit-btn" target="_blank">▶ <span id="ytBtnLabel"></span></a>
+    <div class="dn-wrap">
+      <span class="dn-icon" id="dnIcon">☀️</span>
+      <div class="dn-toggle" id="dnToggle">
+        <div class="dn-knob"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BOOKMARKS BAR ── -->
+  <div class="bkbar">
+    <span>☀️</span><span>⭐</span>
+    <span>🌐 Recently visited +</span>
+    <span>🔖 Bookmarks +</span>
+    <span>💾 Quick Saves +</span>
+  </div>
+
+  <!-- ── NAV TABS ── -->
+  <div class="nav-tabs" id="navTabs"></div>
+
+  <!-- ── CONTENT ── -->
+  <div class="content-area">
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="avatar-wrap" id="avatarWrap"></div>
+      <div class="profile-name" id="sidebarName"></div>
+      <div class="profile-sub"  id="sidebarSub"></div>
+      <div class="status-list">
+        <div class="status-item">
+          <div class="status-dot"></div>
+          <span id="statusText"></span>
+        </div>
+        <div class="status-item"><span>🎬</span><span id="roleText"></span></div>
+        <div class="status-item"><span>📍</span><span id="locationText"></span></div>
+      </div>
+      <div class="hobby-sidebar-list" id="hobbySidebar"></div>
+      <div class="social-row" id="socialRow"></div>
+    </div>
+
+    <!-- Main panel -->
+    <div class="main-panel">
+
+      <!-- HOME -->
+      <div class="panel-page active" id="page-home">
+        <div class="page-title" id="homeTitle"></div>
+        <div class="hero-box" id="heroBox"></div>
+        <div class="bio-row">
+          <div class="bio-dot"></div>
+          <div id="bioPara"></div>
+        </div>
+        <div class="info-cards">
+          <div class="info-card">
+            <div class="card-label" id="card1Label"></div><br>
+            <span id="card1Body"></span>
+          </div>
+          <div class="info-card">
+            <div class="card-label" id="card2Label"></div><br>
+            <span id="card2Body"></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- HOBBIES -->
+      <div class="panel-page" id="page-hobbies">
+        <div class="page-title" id="hobbiesTitle"></div>
+        <div class="hobbies-grid" id="hobbiesGrid"></div>
+      </div>
+
+      <!-- GALLERY -->
+      <div class="panel-page" id="page-gallery">
+        <div class="page-title" id="galleryTitle"></div>
+        <div class="gallery-grid" id="galleryGrid"></div>
+      </div>
+
+      <!-- ABOUT -->
+      <div class="panel-page" id="page-about">
+        <div class="page-title" id="aboutTitle"></div>
+        <div class="bio-row">
+          <div class="bio-dot"></div>
+          <div id="aboutIntro"></div>
+        </div>
+        <div class="info-cards">
+          <div class="info-card">
+            <div class="card-label" id="card3Label"></div><br>
+            <span id="card3Body"></span>
+          </div>
+          <div class="info-card">
+            <div class="card-label" id="card4Label"></div><br>
+            <span id="card4Body"></span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── STATUS BAR ── -->
+  <div class="statusbar">
+    <span class="s-globe">🌐</span>
+    <button class="lang-btn lang-en active-lang" id="btnEn" onclick="setLang('en')">English</button>
+    <button class="lang-btn lang-ru" id="btnRu" onclick="setLang('ru')">Русский</button>
+    <div class="s-icons">
+      <span title="Up">⌃</span>
+      <span title="Sync">☁️</span>
+      <span title="Wi-Fi">📶</span>
+      <span title="Copy">⧉</span>
+    </div>
+  </div>
+
+  <div class="footer" id="footerText"></div>
+</div>
+
+<script>
+/* ============================================================
+   ██████╗  CONFIG — edit everything here
+   ============================================================ */
+const CONFIG = {
+
+  /* ── Personal info ── */
+  name:       "Fenya",
+  subtitle:   "crafter / creator",
+  avatar:     "🧶",           // emoji or swap with <img> tag in code below
+  youtubeUrl: "https://www.youtube.com/@YourChannel",  // ← your YouTube URL
+
+  /* ── Social links (icon, url, title) ── */
+  socials: [
+    { icon:"📸", url:"#",                         title:"Instagram" },
+    { icon:"▶️", url:"https://www.youtube.com",   title:"YouTube"   },
+    { icon:"✉️", url:"mailto:you@email.com",      title:"Email"     },
+  ],
+
+  /* ── Hero emoji / decoration ── */
+  heroEmoji: "🧶 ✂️ 🎵",
+
+  /* ── Hobbies (icon, en, ru, descEn, descRu) ── */
+  hobbies: [
+    {
+      icon:"🧶", en:"Knitting",          ru:"Вязание",
+      descEn:"Turning yarn into cosy things — scarves, sweaters, tiny little creatures. Knitting is my go-to way to unwind.",
+      descRu:"Превращаю пряжу в уютные вещи — шарфы, свитеры, маленьких зверушек. Вязание — мой способ расслабиться.",
+    },
+    {
+      icon:"🪡", en:"Embroidering",      ru:"Вышивка",
+      descEn:"Needle and thread tell stories on fabric. I love cross-stitch patterns and freestyle floral embroidery.",
+      descRu:"Игла и нить рассказывают истории на ткани. Обожаю крестиком и свободную цветочную вышивку.",
+    },
+    {
+      icon:"✍️", en:"Writing",           ru:"Писательство",
+      descEn:"Stories, poems, journal entries — words are how I make sense of the world around me.",
+      descRu:"Рассказы, стихи, дневниковые записи — слова помогают мне понять окружающий мир.",
+    },
+    {
+      icon:"🎵", en:"Soundtracks",       ru:"Саундтреки",
+      descEn:"Composing original soundtracks and lo-fi beats. I love building moods through music — you can hear some on my channel!",
+      descRu:"Пишу оригинальные саундтреки и lo-fi биты. Люблю создавать настроение через музыку — послушать можно на канале!",
+    },
+    {
+      icon:"🧵", en:"Sewing",            ru:"Шитьё",
+      descEn:"From hand-stitched patches to full garments — sewing lets me wear exactly what I imagine.",
+      descRu:"От нашивок ручной работы до целых нарядов — шитьё позволяет носить именно то, что я представляю.",
+    },
+    {
+      icon:"🌈", en:"Rasta & Bangles",   ru:"Растафарианские браслеты",
+      descEn:"Weaving rasta bracelets and bangles with colourful threads. Every piece is one-of-a-kind and made with love.",
+      descRu:"Плету растафарианские браслеты и бэнглы из цветных нитей. Каждое украшение уникально и сделано с любовью.",
+    },
+  ],
+
+  /* ── Gallery items (emoji, bg gradient, en caption, ru caption) ── */
+  gallery: [
+    { emoji:"🧶", bg:"linear-gradient(135deg,#f8d0e8,#fce8f8)", en:"Latest Knit",      ru:"Новое вязание"     },
+    { emoji:"🪡", bg:"linear-gradient(135deg,#d8f0e8,#e8fce0)", en:"Embroidery Hoop",  ru:"Пяльцы"            },
+    { emoji:"🌈", bg:"linear-gradient(135deg,#ffe8a8,#fff0c8)", en:"Rasta Bracelets",  ru:"Браслеты"          },
+    { emoji:"🎵", bg:"linear-gradient(135deg,#c8d8ff,#dce8ff)", en:"My Soundtrack",    ru:"Мой саундтрек"     },
+  ],
+
+  /* ── All translatable strings ── */
+  i18n: {
+    en: {
+      windowTitle:    "Fenya's Portfolio",
+      addressBar:     "🌐 fenya.creates",
+      ytButton:       "Visit My Channel",
+      status:         "status:",
+      statusVal:      "creating ✨",
+      role:           "crafter & YouTuber",
+      location:       "age 16 🌸",
+      tabs:           ["🏠 home", "🎨 hobbies", "🖼️ gallery", "👤 about"],
+      homeTitle:      "Hello! I'm Fenya 👋",
+      bioPara:        `I'm 16 years old and I've been running my own <a href="#">YouTube channel</a> for two years. I make things with my hands, write stories, and compose music — creativity is just how I breathe.`,
+      card1Label:     "ABOUT",
+      card1Body:      "Crafter, writer, composer. I knit, embroider, sew, weave bracelets and pour my heart into every project. Welcome to my little world! 🌸",
+      card2Label:     "ON MY CHANNEL",
+      card2Body:      "Craft tutorials, process videos, and original soundtracks — two years of making and counting. Come watch! ▶️",
+      hobbiesTitle:   "My Hobbies 🎨",
+      galleryTitle:   "Gallery 🖼️",
+      aboutTitle:     "About Me 🌸",
+      aboutIntro:     "Hi! I'm Fenya — a 16-year-old creator who loves making things with her hands and sharing the process with the world.",
+      card3Label:     "MY STORY",
+      card3Body:      "I've been crafting since I was little. Two years ago I started my YouTube channel to share tutorials and creative vlogs — and I've never looked back.",
+      card4Label:     "CONTACT",
+      card4Body:      "Want to chat, collab, or just say hi? Find me via any social link in the sidebar — I'd love to hear from you! 💌",
+      footer:         "✦ made with ♥ by Fenya ✦",
+    },
+    ru: {
+      windowTitle:    "Портфолио Фени",
+      addressBar:     "🌐 fenya.creates",
+      ytButton:       "На мой канал",
+      status:         "статус:",
+      statusVal:      "творю ✨",
+      role:           "мастерица и ютубер",
+      location:       "16 лет 🌸",
+      tabs:           ["🏠 главная", "🎨 хобби", "🖼️ галерея", "👤 обо мне"],
+      homeTitle:      "Привет! Я Феня 👋",
+      bioPara:        `Мне 16 лет, и я веду собственный <a href="#">YouTube-канал</a> уже два года. Я создаю вещи своими руками, пишу истории и сочиняю музыку — творчество для меня как дыхание.`,
+      card1Label:     "О СЕБЕ",
+      card1Body:      "Рукодельница, писательница, композитор. Вяжу, вышиваю, шью, плету браслеты и вкладываю душу в каждый проект. Добро пожаловать в мой маленький мир! 🌸",
+      card2Label:     "МОЙ КАНАЛ",
+      card2Body:      "Мастер-классы, видео о процессе и авторские саундтреки — два года творчества и продолжаю! Заходи смотреть ▶️",
+      hobbiesTitle:   "Мои хобби 🎨",
+      galleryTitle:   "Галерея 🖼️",
+      aboutTitle:     "Обо мне 🌸",
+      aboutIntro:     "Привет! Я Феня — 16-летний творец, который любит делать вещи руками и делиться процессом с миром.",
+      card3Label:     "МОЯ ИСТОРИЯ",
+      card3Body:      "Я занимаюсь рукоделием с детства. Два года назад завела YouTube-канал, чтобы делиться мастер-классами и творческими влогами — и ни разу не пожалела.",
+      card4Label:     "КОНТАКТЫ",
+      card4Body:      "Хочешь пообщаться, сколлаборировать или просто поздороваться? Напиши мне через любую соцсеть из сайдбара! 💌",
+      footer:         "✦ сделано с ♥ Феней ✦",
+    }
+  }
+};
+/* ============================================================
+   END CONFIG
+   ============================================================ */
+
+let currentLang = 'en';
+
+/* ── Render everything from CONFIG ── */
+function render() {
+  const t = CONFIG.i18n[currentLang];
+
+  /* title bar */
+  document.getElementById('titlebarTitle').textContent = t.windowTitle;
+
+  /* address + YT button */
+  document.getElementById('addressText').textContent = t.addressBar;
+  document.getElementById('ytBtnLabel').textContent   = t.ytButton;
+  document.getElementById('ytBtn').href = CONFIG.youtubeUrl;
+
+  /* sidebar */
+  document.getElementById('sidebarName').textContent = CONFIG.name;
+  document.getElementById('sidebarSub').textContent  = CONFIG.subtitle;
+  document.getElementById('avatarWrap').innerHTML    = `<span style="font-size:58px">${CONFIG.avatar}</span>`;
+  document.getElementById('statusText').innerHTML    = `${t.status} <span class="status-val">${t.statusVal}</span>`;
+  document.getElementById('roleText').textContent    = t.role;
+  document.getElementById('locationText').textContent = t.location;
+
+  /* hobby sidebar pills */
+  const hSB = document.getElementById('hobbySidebar');
+  hSB.innerHTML = CONFIG.hobbies.map(h =>
+    `<div class="hobby-sb">${h.icon} ${currentLang==='en'?h.en:h.ru}</div>`
+  ).join('');
+
+  /* socials */
+  document.getElementById('socialRow').innerHTML = CONFIG.socials.map(s =>
+    `<a href="${s.url}" class="soc-btn" title="${s.title}" ${s.url.startsWith('http')?'target="_blank"':''}>${s.icon}</a>`
+  ).join('');
+
+  /* nav tabs */
+  const tabs = ['home','hobbies','gallery','about'];
+  document.getElementById('navTabs').innerHTML = t.tabs.map((label,i) =>
+    `<div class="nav-tab${i===0?' active':''}" onclick="showPage('${tabs[i]}',this)">${label}</div>`
+  ).join('');
+
+  /* home page */
+  document.getElementById('homeTitle').textContent = t.homeTitle;
+  document.getElementById('heroBox').innerHTML = CONFIG.heroEmoji;
+  document.getElementById('bioPara').innerHTML = t.bioPara;
+  document.getElementById('card1Label').textContent = t.card1Label;
+  document.getElementById('card1Body').textContent  = t.card1Body;
+  document.getElementById('card2Label').textContent = t.card2Label;
+  document.getElementById('card2Body').textContent  = t.card2Body;
+
+  /* hobbies page */
+  document.getElementById('hobbiesTitle').textContent = t.hobbiesTitle;
+  document.getElementById('hobbiesGrid').innerHTML = CONFIG.hobbies.map(h => `
+    <div class="hobby-card">
+      <div class="hobby-icon">${h.icon}</div>
+      <div class="hobby-info">
+        <h3>${currentLang==='en'?h.en:h.ru}</h3>
+        <p>${currentLang==='en'?h.descEn:h.descRu}</p>
+      </div>
+    </div>`).join('');
+
+  /* gallery page */
+  document.getElementById('galleryTitle').textContent = t.galleryTitle;
+  document.getElementById('galleryGrid').innerHTML = CONFIG.gallery.map(g => `
+    <div class="gallery-item" style="background:${g.bg}">
+      ${g.emoji}
+      <div class="gallery-cap">${currentLang==='en'?g.en:g.ru}</div>
+    </div>`).join('');
+
+  /* about page */
+  document.getElementById('aboutTitle').textContent = t.aboutTitle;
+  document.getElementById('aboutIntro').textContent = t.aboutIntro;
+  document.getElementById('card3Label').textContent = t.card3Label;
+  document.getElementById('card3Body').textContent  = t.card3Body;
+  document.getElementById('card4Label').textContent = t.card4Label;
+  document.getElementById('card4Body').textContent  = t.card4Body;
+
+  /* footer */
+  document.getElementById('footerText').textContent = t.footer;
+}
+
+/* ── Language switch ── */
+function setLang(lang) {
+  currentLang = lang;
+  document.getElementById('btnEn').classList.toggle('active-lang', lang==='en');
+  document.getElementById('btnRu').classList.toggle('active-lang', lang==='ru');
+  render();
+  /* keep active tab visible */
+  const active = document.querySelector('.panel-page.active');
+  if (active) {
+    const id = active.id.replace('page-','');
+    const newTab = [...document.querySelectorAll('.nav-tab')].find(t=>t.onclick?.toString().includes(`'${id}'`));
+    if(newTab) { document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active')); newTab.classList.add('active'); }
+  }
+}
+
+/* ── Page switching ── */
+function showPage(name, tabEl) {
+  document.querySelectorAll('.panel-page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  tabEl.classList.add('active');
+}
+
+/* ── Day / Night toggle ── */
+document.getElementById('dnToggle').addEventListener('click', function() {
+  const html = document.getElementById('htmlRoot');
+  const isNight = html.classList.toggle('night');
+  document.getElementById('dnIcon').textContent = isNight ? '🌙' : '☀️';
+});
+
+/* ── Stars ── */
+const starsEl = document.getElementById('stars');
+for (let i=0; i<90; i++) {
+  const s = document.createElement('div');
+  s.className = 'star';
+  const sz = Math.random()*2.5+0.5;
+  s.style.cssText = `width:${sz}px;height:${sz}px;top:${Math.random()*75}%;left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${1.5+Math.random()*2}s;`;
+  starsEl.appendChild(s);
+}
+
+/* ── Init ── */
+render();
+</script>
+</body>
+</html>
